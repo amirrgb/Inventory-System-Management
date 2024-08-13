@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.InventoryController" spacing="10" alignment="CENTER">
+
+    <VBox spacing="10" alignment="CENTER">
+        <Button text="Back" onAction="#handleBack"/>
+        <TableView fx:id="categoryTable" maxHeight="120" onMouseClicked="#categorySelection">
+            <columns>
+                <TableColumn fx:id="categoryIdColumn" text="Category ID"/>
+                <TableColumn fx:id="categoryNameColumn" text="Category Name"/>
+                <TableColumn fx:id="categoryQuantity" text="Quantity"/>
+                <TableColumn fx:id="categoryProductsQuantity" text="Products Quantity"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <TextField fx:id="productName" promptText="Product Name"/>
+    <TextField fx:id="productQuantity" promptText="Quantity"/>
+    <HBox>
+        <Button text="Deposit Product (+)" onAction="#handleDepositProductToInventory"/>
+<!--        <Button text="Withdraw Product (-)" onAction="#handleWithdrawProductFromInventory"/>-->
+<!--        <Button text="Set Product Quantity (=)" onAction="#handleSetProductQuantityIntoInventory"/>-->
+    </HBox>
+
+    <TableView fx:id="productTable" maxHeight="250"  onMouseClicked="#productSelection">
+        <columns>
+            <TableColumn fx:id="productIdColumn" text="Product ID"/>
+            <TableColumn fx:id="productNameColumn" text="Product Name"/>
+            <TableColumn fx:id="productDescriptionColumn" text="Product Description"/>
+            <TableColumn fx:id="productQuantityColumn" text="Quantity"/>
+            <TableColumn fx:id="productPriceColumn" text="price"/>
+            <TableColumn fx:id="productsTotalPriceColumn" text="Total Price"/>
+        </columns>
+    </TableView>
+
+</VBox>

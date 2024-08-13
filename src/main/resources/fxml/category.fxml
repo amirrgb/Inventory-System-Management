@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.CategoryController" spacing="10" alignment="CENTER">
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Back" onAction="#handleBack"/>
+        <TextField fx:id="categoryNameField" promptText="Category Name"/>
+        <Button text="Add Category" onAction="#handleAddCategory"/>
+        <Button text="Edit (select before click)" onAction="#handleEditCategory"/>
+    </HBox>
+    <TableView fx:id="categoryTable" onMouseClicked="#setField">
+        <columns>
+            <TableColumn fx:id="categoryIdColumn" text="Category ID"/>
+            <TableColumn fx:id="categoryNameColumn" text="Category Name"/>
+        </columns>
+    </TableView>
+
+</VBox>

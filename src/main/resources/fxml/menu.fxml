@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.controller.MainController" spacing="10" alignment="CENTER">
+    <Button text="Employee Management" fx:id="employeeManagementButton" onAction="#handleEmployeeManagement"/>
+    <Button text="Category Management" fx:id="categoryManagementButton" onAction="#handleCategoryManagement"/>
+    <Button text="Product Management (define product and features)" fx:id="productManagementButton" onAction="#handleProductManagement"/>
+    <Button text="Inventory Management (add products and show statistics)" onAction="#handleInventoryManagement"/>
+    <Button text="Invoice Management" onAction="#handleInvoiceManagement"/>
+    <Button text="Invoice Creation" onAction="#handleInvoiceCreation"/>
+    <Button text="Report Management" onAction="#handleReportManagement"/>
+    <Button text="Log Out" fx:id="logOutButton" onAction="#handleLogOut"/>
+</VBox>
+
+

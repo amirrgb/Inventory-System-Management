@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.EmployeeController" spacing="10" alignment="CENTER">
+    <TextField fx:id="usernameTextField" promptText="Username"/>
+    <TextField fx:id="passwordTextField" promptText="Password"/>
+    <TextField fx:id="firstNameTextField" promptText="first name"/>
+    <TextField fx:id="lastNameTextField" promptText="last name"/>
+    <Button  text="back" onAction="#handleBack"/>
+    <Button text="register" onAction="#handleRegister"/>
+
+</VBox>

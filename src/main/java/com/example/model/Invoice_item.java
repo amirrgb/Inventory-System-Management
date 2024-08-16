@@ -24,13 +24,13 @@ public class Invoice_item {
     private int quantity;
 
     @Column(name = "unit_price", nullable = false)
-    private int unit_price;
+    private double unit_price;
 
     @Column(name = "discount", nullable = false)
     private double discount;
 
     @Column(name = "final_total_price", nullable = false)
-    private int final_total_price;
+    private double final_total_price;
 
     public BigInteger getInvoice_item_id() {
         return invoice_item_id;
@@ -64,11 +64,11 @@ public class Invoice_item {
         this.quantity = quantity;
     }
 
-    public int getUnit_price() {
+    public double getUnit_price() {
         return unit_price;
     }
 
-    public void setUnit_price(int unit_price) {
+    public void setUnit_price(double unit_price) {
         this.unit_price = unit_price;
     }
 
@@ -80,11 +80,11 @@ public class Invoice_item {
         this.discount = discount;
     }
 
-    public int getFinal_total_price() {
+    public double getFinal_total_price() {
         return final_total_price;
     }
 
-    public void setFinal_total_price(int final_total_price) {
+    public void setFinal_total_price(double final_total_price) {
         this.final_total_price = final_total_price;
     }
 }

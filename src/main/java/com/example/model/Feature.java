@@ -13,8 +13,8 @@ public class Feature {
     private BigInteger feature_id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(name = "feature", columnDefinition = "VARCHAR(100)", nullable = false)
     private String feature;
@@ -22,23 +22,12 @@ public class Feature {
     @Column(name = "feature_type", columnDefinition = "VARCHAR(100)", nullable = false)
     private String feature_type;
 
-    @Column(name = "feature_value", columnDefinition = "VARCHAR(100)", nullable = true)
-    private String feature_value;
-
     public BigInteger getFeature_id() {
         return feature_id;
     }
 
     public void setFeature_id(BigInteger feature_id) {
         this.feature_id = feature_id;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
     public String getFeature() {
@@ -57,11 +46,11 @@ public class Feature {
         this.feature_type = feature_type;
     }
 
-    public String getFeature_value() {
-        return feature_value;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setFeature_value(String feature_value) {
-        this.feature_value = feature_value;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

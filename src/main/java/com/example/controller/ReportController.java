@@ -4,6 +4,8 @@ import com.example.model.Customer;
 import com.example.model.Invoice;
 import com.example.repository.FeatureRepository;
 import com.example.repository.InvoiceRepository;
+import com.ghasemkiani.util.icu.PersianCalendar;
+import com.ghasemkiani.util.icu.PersianDateFormat;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
@@ -69,7 +72,11 @@ public class ReportController {
         invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoice_id"));
         date.setCellValueFactory(cellData -> {
             Invoice invoice = cellData.getValue();
-            return new SimpleStringProperty(invoice.getCreatedAt().toString());
+            Timestamp currentDate = invoice.getCreatedAt();
+            PersianCalendar persianCalendar = new PersianCalendar();
+            persianCalendar.setTime(currentDate);
+            PersianDateFormat persianDateFormat = new PersianDateFormat("yyyy/MM/dd");
+            return new SimpleStringProperty(persianDateFormat.format(persianCalendar));
         });
         customerInfo.setCellValueFactory(cellData -> {
             Invoice invoice = cellData.getValue();

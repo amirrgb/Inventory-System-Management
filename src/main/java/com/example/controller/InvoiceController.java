@@ -1,12 +1,12 @@
 package com.example.controller;
 
-import com.example.model.Customer;
-import com.example.model.Invoice;
-import com.example.model.Invoice_item;
-import com.example.model.Product;
+import com.example.model.*;
 import com.example.repository.FeatureRepository;
+import com.example.repository.FeatureValueRepository;
 import com.example.repository.InvoiceRepository;
 import com.example.repository.InvoicesItemRepository;
+import com.ghasemkiani.util.icu.PersianCalendar;
+import com.ghasemkiani.util.icu.PersianDateFormat;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
@@ -26,9 +27,16 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.iransandbox.SpringBootJavaFXApplication.applicationContext;
+
+;
 
 @Controller
 public class InvoiceController {
@@ -41,6 +49,17 @@ public class InvoiceController {
     private FeatureRepository featureRepository;
     @Autowired
     private InvoicesItemRepository invoicesItemRepository;
+    @Autowired
+    private FeatureValueRepository featureValueRepository;
+
+    @FXML
+    private TextField searchDateField;
+
+    @FXML
+    private TextField searchCustomerNameField;
+
+    @FXML
+    private TextField searchInvoiceIdField;
 
     @FXML
     private TableView<Invoice> invoiceTable;
@@ -52,7 +71,25 @@ public class InvoiceController {
     private TableColumn<Invoice, String> date;
 
     @FXML
-    private TableColumn<Invoice, String> customerInfo;
+    private TableColumn<Invoice, String> customerName;
+
+    @FXML
+    private TableColumn<Invoice, String> customerEmail;
+
+    @FXML
+    private TableColumn<Invoice, String> customerAddress;
+
+    @FXML
+    private TableColumn<Invoice, String> customerNationalId;
+
+    @FXML
+    private TableColumn<Invoice, String> customerCity;
+
+    @FXML
+    private TableColumn<Invoice, String> customerState;
+
+    @FXML
+    private TableColumn<Invoice, String> customerPhone;
 
     @FXML
     private TableColumn<Invoice, String> employeeInfo;
@@ -92,14 +129,61 @@ public class InvoiceController {
         invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoice_id"));
         date.setCellValueFactory(cellData -> {
             Invoice invoice = cellData.getValue();
-            return new SimpleStringProperty(invoice.getCreatedAt().toString());
+            Timestamp currentDate = invoice.getCreatedAt();
+            PersianCalendar persianCalendar = new PersianCalendar();
+            persianCalendar.setTime(currentDate);
+            PersianDateFormat persianDateFormat = new PersianDateFormat("yyyy/MM/dd");
+            return new SimpleStringProperty(persianDateFormat.format(persianCalendar));
         });
-        customerInfo.setCellValueFactory(cellData -> {
+        customerName.setCellValueFactory(cellData -> {
             Invoice invoice = cellData.getValue();
             Customer customer = invoice.getCustomer();
-            String customerInfo = customer.getFirst_name() + " " + customer.getLast_name() + " : " + customer.getPhone_number();
+            String customerInfo = customer.getFirst_name() + " " + customer.getLast_name();
             return new SimpleStringProperty(customerInfo);
         });
+
+        customerEmail.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getEmail();
+            return new SimpleStringProperty(customerInfo);
+        });
+
+        customerAddress.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getAddress();
+            return new SimpleStringProperty(customerInfo);
+        });
+
+        customerNationalId.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getNational_id();
+            return new SimpleStringProperty(customerInfo);
+        });
+
+        customerCity.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getCity();
+            return new SimpleStringProperty(customerInfo);
+        });
+
+        customerState.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getState();
+            return new SimpleStringProperty(customerInfo);
+        });
+
+        customerPhone.setCellValueFactory(cellData -> {
+            Invoice invoice = cellData.getValue();
+            Customer customer = invoice.getCustomer();
+            String customerInfo = customer.getPhone_number();
+            return new SimpleStringProperty(customerInfo);
+        });
+
         employeeInfo.setCellValueFactory(cellData -> {
             Invoice invoice = cellData.getValue();
             System.out.println("first name is : " + invoice.getUser().getFirst_name());
@@ -130,9 +214,7 @@ public class InvoiceController {
         });
         productPriceColumn.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            return new SimpleStringProperty(String.valueOf(price));
+            return new SimpleStringProperty(invoiceItem.getUnit_price() + "");
         });
         productQuantityColumn.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
@@ -140,18 +222,12 @@ public class InvoiceController {
         });
         productDiscountColumn.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            String discount = featureRepository.getDiscountByProduct(product.getProduct_id()) + " %";
+            String discount = invoiceItem.getDiscount() + " %";
             return new SimpleStringProperty(discount);
         });
         productsTotalPriceColumn.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            double discountPrice = price * (1 - featureRepository.getDiscountByProduct(product.getProduct_id()) / 100.0);
-            double totalPrice = invoiceItem.getQuantity() * discountPrice;
-            // removing decimal places
-            return new SimpleStringProperty(String.valueOf(Math.round(totalPrice)));
+            return new SimpleStringProperty(String.valueOf(Math.round(invoiceItem.getFinal_total_price())));
         });
 
         loadInvoiceItems();
@@ -197,4 +273,48 @@ public class InvoiceController {
         invoiceItems.setAll(invoiceItemsList);
         invoiceItemsTable.setItems(invoiceItems);
     }
+
+    @FXML
+    public void searchForInvoice(ActionEvent event) {
+        String invoiceId = searchInvoiceIdField.getText();
+        ArrayList<Invoice> invoices = new ArrayList<>() ;
+        if (!invoiceId.isEmpty()){
+            invoices.add(invoiceRepository.findById(Long.parseLong(invoiceId)));
+        } else if (searchCustomerNameField.getText()!= null &&!searchCustomerNameField.getText().isEmpty()){
+            invoices.addAll(invoiceRepository.findByCustomerName(searchCustomerNameField.getText()));
+        } else if (searchDateField.getText()!= null &&!searchDateField.getText().isEmpty()){
+            invoices = new ArrayList<>(getInvoicesByDate(searchDateField.getText()));
+        }else{
+            invoices.addAll(invoiceRepository.findAll());
+        }
+        invoiceTable.setItems(FXCollections.observableArrayList(invoices));
+        searchInvoiceIdField.clear();
+        searchCustomerNameField.clear();
+        searchDateField.clear();
+    }
+
+    public ArrayList<Invoice> getInvoicesByDate(String date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        try {
+            Date parsedDate = dateFormat.parse(date);
+            String searchDate = dateFormat.format(parsedDate);
+            List<Invoice> allInvoices = invoiceRepository.findAll();
+            ArrayList<Invoice> invoices = new ArrayList<>();
+            for (Invoice invoice : allInvoices) {
+                Timestamp currentDate = invoice.getCreatedAt();
+                PersianCalendar persianCalendar = new PersianCalendar();
+                persianCalendar.setTime(currentDate);
+                PersianDateFormat persianDateFormat = new PersianDateFormat("yyyy/MM/dd");
+                String invoiceDate = persianDateFormat.format(persianCalendar);
+                if (searchDate.equals(invoiceDate)) {
+                    invoices.add(invoice);
+                }
+            }
+            return new ArrayList<>(invoices);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

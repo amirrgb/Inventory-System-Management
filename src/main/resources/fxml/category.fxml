@@ -4,17 +4,41 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.CategoryController" spacing="10" alignment="CENTER">
+    <HBox>
+        <TextField fx:id="searchCategoryField" />
+        <Button text="search" onAction="#searchForCategory"/>
+    </HBox>
     <HBox spacing="10" alignment="CENTER">
         <Button text="Back" onAction="#handleBack"/>
         <TextField fx:id="categoryNameField" promptText="Category Name"/>
         <Button text="Add Category" onAction="#handleAddCategory"/>
         <Button text="Edit (select before click)" onAction="#handleEditCategory"/>
     </HBox>
-    <TableView fx:id="categoryTable" onMouseClicked="#setField">
+    <TableView fx:id="categoryTable" onMouseClicked="#categorySelection" >
         <columns>
             <TableColumn fx:id="categoryIdColumn" text="Category ID"/>
             <TableColumn fx:id="categoryNameColumn" text="Category Name"/>
         </columns>
+    </TableView>
+
+    <TextField fx:id="featureNameField" promptText="Feature Name"/>
+    <TextField fx:id="featureTypeField" promptText="Feature Type"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Clear" onAction="#clearFeatureFields"/>
+        <Button text="Add Feature" onAction="#handleAddFeature"/>
+        <Button text="Edit (select before click)" onAction="#handleEditFeature"/>
+        <Button text="Delete (select before click)" onAction="#handleDeleteFeature"/>
+    </HBox>
+
+    <TableView fx:id="featureTable" maxHeight="150" onMouseClicked="#setFeatureFields">
+
+        <columns>
+            <TableColumn fx:id="featureIdColumn" text="Feature ID"/>
+            <TableColumn fx:id="featureNameColumn" text="Feature Name"/>
+            <TableColumn fx:id="featureTypeColumn" text="Feature Type"/>
+        </columns>
+
     </TableView>
 
 </VBox>

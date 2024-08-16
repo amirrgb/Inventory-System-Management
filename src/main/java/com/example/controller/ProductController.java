@@ -2,9 +2,11 @@ package com.example.controller;
 
 import com.example.model.Category;
 import com.example.model.Feature;
+import com.example.model.Feature_value;
 import com.example.model.Product;
 import com.example.repository.CategoryRepository;
 import com.example.repository.FeatureRepository;
+import com.example.repository.FeatureValueRepository;
 import com.example.repository.ProductRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -33,7 +35,7 @@ public class ProductController {
 
     private static Product currentProduct;
 
-    private static Feature currentFeature;
+    private static Feature_value currentFeatureValue;
 
     @Autowired
     private ProductRepository productRepository;
@@ -42,7 +44,11 @@ public class ProductController {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private FeatureValueRepository featureValueRepository;
+
+    @Autowired
     private FeatureRepository featureRepository;
+
 
     @FXML
     private TextField productNameField;
@@ -52,6 +58,9 @@ public class ProductController {
 
     @FXML
     public TextField productCategoryIdField;
+
+    @FXML
+    private TextField searchCategoryField;
 
     @FXML
     public TextField productCategoryNameField;
@@ -68,7 +77,8 @@ public class ProductController {
     @FXML
     public TextArea warningTextArea;
 
-
+    @FXML
+    private TextField searchProductField;
 
     @FXML
     private TableView<Product> productTable;
@@ -91,30 +101,24 @@ public class ProductController {
     private TextField featureNameField;
 
     @FXML
-    private TextField featureTypeField;
-
-    @FXML
     private TextField featureValueField;
 
     @FXML
-    private TableView<Feature> featureTable;
+    private TableView<Feature_value> featureTable;
 
     @FXML
-    private TableColumn<Feature, BigInteger> featureIdColumn;
+    private TableColumn<Feature_value, String> featureNameColumn;
 
     @FXML
-    private TableColumn<Feature, String> featureNameColumn;
+    private TableColumn<Feature_value, String> featureTypeColumn;
 
     @FXML
-    private TableColumn<Feature, String> featureTypeColumn;
-
-    @FXML
-    private TableColumn<Feature, String> featureValueColumn;
+    private TableColumn<Feature_value, String> featureValueColumn;
 
 
     private final ObservableList<Category> categories = FXCollections.observableArrayList();
     private final ObservableList<Product> products = FXCollections.observableArrayList();
-    private final ObservableList<Feature> features = FXCollections.observableArrayList();
+    private final ObservableList<Feature_value> featureValues = FXCollections.observableArrayList();
     @FXML
     public void initialize() {
         productIdColumn.setCellValueFactory(new PropertyValueFactory<>("product_id"));
@@ -144,10 +148,18 @@ public class ProductController {
         categoryNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         loadCategories();
 
-        featureIdColumn.setCellValueFactory(new PropertyValueFactory<>("feature_id"));
-        featureNameColumn.setCellValueFactory(new PropertyValueFactory<>("feature"));
-        featureTypeColumn.setCellValueFactory(new PropertyValueFactory<>("feature_type"));
-        featureValueColumn.setCellValueFactory(new PropertyValueFactory<>("feature_value"));
+        featureNameColumn.setCellValueFactory(cellData -> {
+            String featureName = cellData.getValue().getFeature().getFeature();
+            return featureName!= null? new SimpleStringProperty(featureName) : new SimpleStringProperty("No Feature");
+        });
+        featureTypeColumn.setCellValueFactory(cellData -> {
+            String featureType = cellData.getValue().getFeature().getFeature_type();
+            return featureType!= null? new SimpleStringProperty(featureType) : new SimpleStringProperty("No Type");
+        });
+        featureValueColumn.setCellValueFactory(cellData -> {
+            String featureValue = cellData.getValue().getValue();
+            return featureValue!= null? new SimpleStringProperty(featureValue) : new SimpleStringProperty("No Value");
+        });
 
         loadFeatures();
     }
@@ -166,12 +178,12 @@ public class ProductController {
         if (currentProduct == null) {
             return;
         }
-        List<Feature> productFeatures = featureRepository.findAllByProduct(currentProduct.getProduct_id());
-        if (productFeatures == null) {
+        List<Feature_value> productFeatureValues = featureValueRepository.findAllByProduct(currentProduct.getProduct_id());
+        if (productFeatureValues == null) {
             return;
         }
-        features.setAll(productFeatures);
-        featureTable.setItems(features);
+        featureValues.setAll(productFeatureValues);
+        featureTable.setItems(featureValues);
     }
 
     @FXML
@@ -213,7 +225,8 @@ public class ProductController {
         productRepository.save(product);
         currentProduct = product;
         loadProducts();
-        getFeaturesOfSameProducts();
+        createDefaultFeatureValues(product);
+        loadFeatures();
         clearProductFields(null);
     }
 
@@ -256,86 +269,8 @@ public class ProductController {
         loadProducts();
     }
 
-    @FXML
-    private void handleAddFeature(ActionEvent event) {
-        String featureName = featureNameField.getText();
-        String featureType = featureTypeField.getText();
-        String featureValue = featureValueField.getText();
 
-        if (featureName == null || featureName.trim().isEmpty()){
-            warningTextArea.setText("Feature Name is required");
-            return;
-        }
 
-        if (featureType == null || featureType.trim().isEmpty()){
-            warningTextArea.setText("Feature Type is required");
-            return;
-        }
-
-        if (featureValue == null || featureValue.trim().isEmpty()){
-            warningTextArea.setText("Feature Value is required");
-            return;
-        }
-
-        if (featureRepository.findByNameAndProduct(featureName, currentProduct.getProduct_id()) != null){
-            warningTextArea.setText("Feature with the same name already exists for the selected product");
-            return;
-        }
-
-        Product selectedProduct = currentProduct;
-
-        if (selectedProduct == null) {
-            warningTextArea.setText("Please select a product");
-            return;
-        }
-
-        Feature feature = new Feature();
-        feature.setFeature(featureName);
-        feature.setFeature_type(featureType);
-        feature.setFeature_value(featureValue);
-        feature.setProduct(selectedProduct);
-
-        featureRepository.save(feature);
-        updateFeaturesOfProductInSameCategory();
-        loadFeatures();
-    }
-
-    @FXML
-    private void handleEditFeature(ActionEvent event) {
-        String featureName = featureNameField.getText();
-        String featureType = featureTypeField.getText();
-        String featureValue = featureValueField.getText();
-
-        if (featureName == null || featureName.trim().isEmpty()){
-            warningTextArea.setText("Feature Name is required");
-            return;
-        }
-
-        if (featureType == null || featureType.trim().isEmpty()){
-            warningTextArea.setText("Feature Type is required");
-            return;
-        }
-
-        if (featureValue == null || featureValue.trim().isEmpty()){
-            warningTextArea.setText("Feature Value is required");
-            return;
-        }
-
-        Feature selectedFeature = currentFeature;
-        selectedFeature.setFeature(featureName);
-        selectedFeature.setFeature_type(featureType);
-        selectedFeature.setFeature_value(featureValue);
-
-        featureRepository.update(selectedFeature);
-        loadFeatures();
-    }
-
-    @FXML
-    private void handleDeleteFeature(ActionEvent event) {
-        Feature selectedFeature = featureTable.getSelectionModel().getSelectedItem();
-        featureRepository.delete(selectedFeature);
-        loadFeatures();
-    }
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -370,7 +305,6 @@ public class ProductController {
     private void clearFeatureFields(ActionEvent event) {
         clearWarningText();
         featureNameField.clear();
-        featureTypeField.clear();
         featureValueField.clear();
     }
 
@@ -397,95 +331,72 @@ public class ProductController {
     @FXML
     private void setFeatureFields(MouseEvent event) {
         clearWarningText();
-        Feature selectedFeature = featureTable.getSelectionModel().getSelectedItem();
-        currentFeature = selectedFeature;
-        featureNameField.setText(selectedFeature.getFeature());
-        featureTypeField.setText(selectedFeature.getFeature_type());
-        featureValueField.setText(selectedFeature.getFeature_value());
+        Feature_value selectedFeatureValue = featureTable.getSelectionModel().getSelectedItem();
+        currentFeatureValue = selectedFeatureValue;
+        featureNameField.setText(selectedFeatureValue.getFeature().getFeature());
+        featureValueField.setText(selectedFeatureValue.getValue().trim());
+    }
+
+    @FXML
+    private void handleEditFeature(ActionEvent event) {
+        String featureName = featureNameField.getText();
+        String featureValue = featureValueField.getText();
+
+        if (!featureName.equals(currentFeatureValue.getFeature().getFeature())) {
+            warningTextArea.setText("Feature Name cannot be changed");
+            return;
+        }
+
+        if (featureValue == null || featureValue.trim().isEmpty()){
+            warningTextArea.setText("Feature Value is required");
+            return;
+        }
+
+        Feature_value selectedFeatureValue = currentFeatureValue;
+        selectedFeatureValue.setValue(featureValue);
+        featureValueRepository.update(selectedFeatureValue);
+        loadFeatures();
+
+        clearFeatureFields(null);
     }
 
     private void clearWarningText() {
         warningTextArea.clear();
     }
 
-    private void getFeaturesOfSameProducts() {
-        Feature feature = new Feature();
-
-        if(featureRepository.findByNameAndProduct("price",currentProduct.getProduct_id()) == null){
-            feature.setFeature("price");
-            feature.setFeature_type("int");
-            feature.setFeature_value("0");
-            feature.setProduct(currentProduct);
-            featureRepository.save(feature);
+    @FXML
+    public void searchForProduct(ActionEvent event) {
+        String productName = searchProductField.getText().trim();
+        if (productName.isEmpty()) {
+            loadProducts();
+        } else {
+            products.setAll(productRepository.findByName(productName));
+            productTable.setItems(products);
         }
-
-        if(featureRepository.findByNameAndProduct("discount",currentProduct.getProduct_id()) == null) {
-            feature = new Feature();
-            feature.setFeature("discount");
-            feature.setFeature_type("int");
-            feature.setFeature_value("0");
-            feature.setProduct(currentProduct);
-            featureRepository.save(feature);
-        }
-
-        Category category = currentProduct.getCategory();
-        List<Product> sameProducts = productRepository.findAllByCategory(category.getCategory_id());
-        for (Product product : sameProducts) {
-            List<Feature> otherFeatures = featureRepository.findAllByProduct(product.getProduct_id());
-            for (Feature otherFeature : otherFeatures) {
-                String featureName = otherFeature.getFeature();
-                if(featureRepository.findByNameAndProduct(featureName,currentProduct.getProduct_id()) == null) {
-                    feature.setFeature(otherFeature.getFeature());
-                    feature.setFeature_type(otherFeature.getFeature_type());
-                    feature.setFeature_value(null);
-                    feature.setProduct(currentProduct);
-                    featureRepository.save(feature);
-                }
-            }
-        }
-
-        loadFeatures();
     }
 
-    private void updateFeaturesOfProductInSameCategory() {
-        List<Product> products = productRepository.findAll();
-        for (Product product : products) {
-            Feature feature = new Feature();
-
-            if(featureRepository.findByNameAndProduct("price",product.getProduct_id()) == null){
-                feature.setFeature("price");
-                feature.setFeature_type("int");
-                feature.setFeature_value("0");
-                feature.setProduct(product);
-                featureRepository.save(feature);
-            }
-
-            if(featureRepository.findByNameAndProduct("discount",product.getProduct_id()) == null) {
-                feature = new Feature();
-                feature.setFeature("discount");
-                feature.setFeature_type("int");
-                feature.setFeature_value("0");
-                feature.setProduct(product);
-                featureRepository.save(feature);
-            }
-
-            Category category = product.getCategory();
-            List<Product> sameProducts = productRepository.findAllByCategory(category.getCategory_id());
-            for (Product sameProduct : sameProducts) {
-                List<Feature> otherFeatures = featureRepository.findAllByProduct(sameProduct.getProduct_id());
-                for (Feature otherFeature : otherFeatures) {
-                    String featureName = otherFeature.getFeature();
-                    if(featureRepository.findByNameAndProduct(featureName,product.getProduct_id()) == null) {
-                        feature.setFeature(otherFeature.getFeature());
-                        feature.setFeature_type(otherFeature.getFeature_type());
-                        feature.setFeature_value(null);
-                        feature.setProduct(product);
-                        featureRepository.save(feature);
-                    }
-                }
-            }
+    @FXML
+    public void searchForCategory(ActionEvent event) {
+        String categoryName = searchCategoryField.getText().trim();
+        if (categoryName.isEmpty()) {
+            loadCategories();
+        } else {
+            categories.setAll(categoryRepository.findByName(categoryName));
+            categoryTable.setItems(categories);
         }
-
     }
 
+    private void createDefaultFeatureValues(Product product) {
+        Category category = product.getCategory();
+        List<Feature> features = featureRepository.findAllByCategory(category.getCategory_id());
+        System.out.println("--- --- --- features of category : " + category.getName() + " is " + features.size());
+        for (Feature feature : features) {
+            System.out.println("--- --- --- feature is : " + feature.getFeature());
+            Feature_value featureValue = new Feature_value();
+            featureValue.setFeature(feature);
+            featureValue.setValue(" ");
+            featureValue.setProduct(product);
+            featureValueRepository.save(featureValue);
+        }
+    }
 }

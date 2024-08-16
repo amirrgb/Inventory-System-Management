@@ -42,9 +42,14 @@ public class CreateInvoiceController {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private FeatureValueRepository featureValueRepository;
+
     public ArrayList<Invoice_item> items = new ArrayList<>();
     public Product currentProduct;
 
+    @FXML
+    private TextField searchProductField;
 
     @FXML
     private TableView<Product> productTable;
@@ -76,7 +81,8 @@ public class CreateInvoiceController {
     @FXML
     private TextField productQuantityField;
 
-
+    @FXML
+    private TextField discountField;
 
     @FXML
     private TableView<Invoice_item> invoiceItemsTable;
@@ -109,6 +115,18 @@ public class CreateInvoiceController {
 
     @FXML
     private TextField customerEmail;
+
+    @FXML
+    private TextField customerAddress;
+
+    @FXML
+    private TextField customerCity;
+
+    @FXML
+    private TextField customerState;
+
+    @FXML
+    private TextField customerNI;
 
     @FXML
     private Button registerCustomerButton;
@@ -149,18 +167,29 @@ public class CreateInvoiceController {
         Invoice_item invoiceItem = new Invoice_item();
 
         invoiceItem.setProduct(currentProduct);
-        Long productPrice = featureRepository.getPriceByProduct(currentProduct.getProduct_id());
-        double discount = featureRepository.getDiscountByProduct(currentProduct.getProduct_id()) /100.0 ;
-        int discountedPrice = (int) (productPrice * (1 - discount));
-        invoiceItem.setUnit_price(discountedPrice);
+
+        Feature feature = featureRepository.findByNameAndCategory("price", currentProduct.getCategory().getCategory_id());
+        Feature_value featureValue = featureValueRepository.findByProductAndFeature(currentProduct.getProduct_id(), feature.getFeature_id());
+        double productPrice = Double.parseDouble(featureValue.getValue().trim());
+        System.out.println("product price is : " +productPrice);
+        double discount = Double.parseDouble(discountField.getText().trim());
+        System.out.println("discount is : " + discount);
+        invoiceItem.setUnit_price(productPrice);
         invoiceItem.setDiscount(discount);
+
+        double discountedPrice = (productPrice * (1.0 - (discount / 100.0)));
+
+        System.out.println("price after discount is : " + discountedPrice);
         if (index == -1) {
             invoiceItem.setQuantity(quantityInt);
             invoiceItem.setFinal_total_price(quantityInt * discountedPrice);
+            System.out.println("total discounted price is 1: " + invoiceItem.getFinal_total_price());
+
             items.add(invoiceItem);
         }else{
             invoiceItem.setQuantity(items.get(index).getQuantity() + quantityInt);
             invoiceItem.setFinal_total_price((items.get(index).getQuantity() + quantityInt) * discountedPrice);
+            System.out.println("total discounted price is 2: " + invoiceItem.getFinal_total_price());
             items.set(index, invoiceItem);
         }
         inventory.setQuantity(inventory.getQuantity() - quantityInt);
@@ -168,6 +197,7 @@ public class CreateInvoiceController {
         updateProductTable();
         updateInvoiceItems();
         productQuantityField.clear();
+        discountField.clear();
     }
 
     private final ObservableList<Product> products = FXCollections.observableArrayList();
@@ -210,20 +240,29 @@ public class CreateInvoiceController {
 
         productPriceColumn.setCellValueFactory(cellData -> {
             Product product = cellData.getValue();
-            String price = featureRepository.getPriceByProduct(product.getProduct_id()) + "";
-            return new SimpleStringProperty(price);
+            Feature feature = featureRepository.findByNameAndCategory("price", product.getCategory().getCategory_id());
+            Feature_value featureValue = featureValueRepository.findByProductAndFeature(product.getProduct_id(), feature.getFeature_id());
+            return new SimpleStringProperty(featureValue.getValue().trim());
         });
 
         productDiscountColumn.setCellValueFactory(cellData -> {
             Product product = cellData.getValue();
-            String discount = featureRepository.getDiscountByProduct(product.getProduct_id()) + " %";
+            Feature feature = featureRepository.findByNameAndCategory("discount", product.getCategory().getCategory_id());
+            Feature_value featureValue = featureValueRepository.findByProductAndFeature(product.getProduct_id(), feature.getFeature_id());
+            String discount = featureValue.getValue().trim() + " %";
             return new SimpleStringProperty(discount);
         });
 
         productDiscountedPriceColumn.setCellValueFactory(cellData -> {
             Product product = cellData.getValue();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            double discount = featureRepository.getDiscountByProduct(product.getProduct_id()) / 100.0;
+
+            Feature feature = featureRepository.findByNameAndCategory("price", product.getCategory().getCategory_id());
+            Feature_value featureValue = featureValueRepository.findByProductAndFeature(product.getProduct_id(), feature.getFeature_id());
+            Long price = Long.parseLong(featureValue.getValue().trim());
+
+            feature = featureRepository.findByNameAndCategory("discount", product.getCategory().getCategory_id());
+            featureValue = featureValueRepository.findByProductAndFeature(product.getProduct_id(), feature.getFeature_id());
+            double discount = Double.parseDouble(featureValue.getValue().trim()) / 100.0;
             long discountedPrice = (long) (price - (price * discount));
             return new SimpleStringProperty(discountedPrice + "");
         });
@@ -231,17 +270,15 @@ public class CreateInvoiceController {
     }
 
     public void updateInvoiceItems(){
-        productNameColumn1.setCellValueFactory(cellDate -> {
-            Invoice_item invoiceItem = cellDate.getValue();
+        productNameColumn1.setCellValueFactory(cellData -> {
+            Invoice_item invoiceItem = cellData.getValue();
             Product product = invoiceItem.getProduct();
             String productName = product.getName();
             return new SimpleStringProperty(productName);
         });
         productPriceColumn1.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            return new SimpleStringProperty(String.valueOf(price));
+            return new SimpleStringProperty(invoiceItem.getUnit_price() + "");
         });
         productQuantityColumn1.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
@@ -249,17 +286,12 @@ public class CreateInvoiceController {
         });
         productDiscountColumn1.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            String discount = featureRepository.getDiscountByProduct(product.getProduct_id()) + " %";
+            String discount = invoiceItem.getDiscount() + " %";
             return new SimpleStringProperty(discount);
         });
         productsTotalPriceColumn.setCellValueFactory(cellData -> {
             Invoice_item invoiceItem = cellData.getValue();
-            Product product = invoiceItem.getProduct();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            double discountPrice = price * (1 - featureRepository.getDiscountByProduct(product.getProduct_id()) / 100.0);
-            double totalPrice = invoiceItem.getQuantity() * discountPrice;
-            return new SimpleStringProperty(String.valueOf(Math.round(totalPrice)));
+            return new SimpleStringProperty(invoiceItem.getFinal_total_price() + "");
         });
 
         loadInvoiceItems();
@@ -287,14 +319,8 @@ public class CreateInvoiceController {
             return;
         }
         Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
-        System.out.println("customer == null : " + (customer == null));
-        System.out.println("registerCustomerButton.isVisible() : " + registerCustomerButton.isVisible());
-        System.out.println("registerCustomerButton.visibleProperty() : " + registerCustomerButton.visibleProperty());
         if (customer == null){
-            customerFirstName.setVisible(true);
-            customerLastName.setVisible(true);
-            customerEmail.setVisible(true);
-            registerCustomerButton.setVisible(true);
+            changeVisibility(true);
             if (registerCustomerButton.isVisible()){
                 customer = new Customer();
                 customer.setPhone_number(phoneNumber);
@@ -304,9 +330,25 @@ public class CreateInvoiceController {
                     AlertHandler.showAlert("Error", "First name and last name are required", "Please enter valid first name and last name");
                     return;
                 }
+                String address = customerAddress.getText();
+                String city = customerCity.getText();
+                String state = customerState.getText();
+                if (address == null || address.trim().isEmpty() || city == null || city.trim().isEmpty() || state == null || state.trim().isEmpty()){
+                    AlertHandler.showAlert("Error", "Address, city, and state are required", "Please enter valid address, city, and state");
+                    return;
+                }
+                String national_id = customerNI.getText();
+                if (national_id == null || national_id.trim().isEmpty()){
+                    AlertHandler.showAlert("Error", "National ID is required", "Please enter a valid national ID");
+                    return;
+                }
                 customer.setFirst_name(firstName);
                 customer.setLast_name(lastName);
                 customer.setEmail(customerEmail.getText());
+                customer.setAddress(address);
+                customer.setCity(city);
+                customer.setState(state);
+                customer.setNational_id(national_id);
                 customerRepository.save(customer);
             }else{
                 AlertHandler.showAlert("Error", "Customer not found", "Please register a new customer or enter a valid phone number");
@@ -315,7 +357,7 @@ public class CreateInvoiceController {
         }
         invoice.setCustomer(customer);
         invoiceRepository.save(invoice);
-        int totalAmount = 0;
+        double totalAmount = 0.0;
         for (Invoice_item item : items) {
             item.setInvoice(invoice);
             invoiceItemRepository.save(item);
@@ -356,6 +398,9 @@ public class CreateInvoiceController {
         Product selectedProduct = productTable.getSelectionModel().getSelectedItem();
         if (selectedProduct!= null) {
             currentProduct = selectedProduct;
+            Feature feature = featureRepository.findByNameAndCategory("discount", currentProduct.getCategory().getCategory_id());
+            Feature_value featureValue = featureValueRepository.findByProductAndFeature(currentProduct.getProduct_id(), feature.getFeature_id());
+            discountField.setText(featureValue.getValue().trim());
         }
     }
 
@@ -372,28 +417,56 @@ public class CreateInvoiceController {
             return;
         }
         Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
-        if (customer == null){
-            if (registerCustomerButton.isVisible()){
-                customer = new Customer();
-                customer.setPhone_number(phoneNumber);
-                String firstName = customerFirstName.getText();
-                String lastName = customerLastName.getText();
-                if (firstName == null || firstName.trim().isEmpty() || lastName == null || lastName.trim().isEmpty()){
-                    AlertHandler.showAlert("Error", "First name and last name are required", "Please enter valid first name and last name");
-                    return;
-                }
-                customer.setFirst_name(firstName);
-                customer.setLast_name(lastName);
-                customer.setEmail(customerEmail.getText());
-                customerRepository.save(customer);
-            }else{
-                customerFirstName.setVisible(true);
-                customerLastName.setVisible(true);
-                customerEmail.setVisible(true);
-                registerCustomerButton.setVisible(true);
-                AlertHandler.showAlert("Error", "Customer not found", "Please register a new customer or enter a valid phone number");
+        if (customer == null) {
+            customer = new Customer();
+            customer.setPhone_number(phoneNumber);
+            String firstName = customerFirstName.getText();
+            String lastName = customerLastName.getText();
+            if (firstName == null || firstName.trim().isEmpty() || lastName == null || lastName.trim().isEmpty()) {
+                AlertHandler.showAlert("Error", "First name and last name are required", "Please enter valid first name and last name");
                 return;
             }
+            String address = customerAddress.getText();
+            String city = customerCity.getText();
+            String state = customerState.getText();
+            if (address == null || address.trim().isEmpty() || city == null || city.trim().isEmpty() || state == null || state.trim().isEmpty()) {
+                AlertHandler.showAlert("Error", "Address, city, and state are required", "Please enter valid address, city, and state");
+                return;
+            }
+            String national_id = customerNI.getText();
+            if (national_id == null || national_id.trim().isEmpty()) {
+                AlertHandler.showAlert("Error", "National ID is required", "Please enter a valid national ID");
+                return;
+            }
+            customer.setFirst_name(firstName);
+            customer.setLast_name(lastName);
+            customer.setEmail(customerEmail.getText());
+            customer.setAddress(address);
+            customer.setCity(city);
+            customer.setState(state);
+            customer.setNational_id(national_id);
+            customerRepository.save(customer);
+        }
+    }
+
+    private void changeVisibility(boolean visible){
+        customerFirstName.setVisible(visible);
+        customerLastName.setVisible(visible);
+        customerEmail.setVisible(visible);
+        customerAddress.setVisible(visible);
+        customerCity.setVisible(visible);
+        customerState.setVisible(visible);
+        customerNI.setVisible(visible);
+    }
+
+    @FXML
+    public void searchForProduct(ActionEvent event) {
+        String productName = searchProductField.getText().trim();
+        if (productName.isEmpty()) {
+            loadProducts();
+        } else {
+            products.setAll(productRepository.findByName(productName));
+            productTable.setItems(products);
         }
     }
 }

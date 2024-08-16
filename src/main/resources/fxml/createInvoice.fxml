@@ -6,6 +6,10 @@
 <VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.CreateInvoiceController" spacing="10" alignment="CENTER">
     <Button text="Back" onAction="#handleBack"/>
 
+    <HBox>
+        <TextField fx:id="searchProductField" />
+        <Button text="search" onAction="#searchForProduct"/>
+    </HBox>
     <TableView fx:id="productTable" maxHeight="250" onMouseClicked="#productSelection">
         <columns>
             <TableColumn fx:id="productIdColumn" text="Product ID"/>
@@ -20,7 +24,13 @@
         </columns>
     </TableView>
 
-    <TextField fx:id="productQuantityField" promptText="quantity"/>
+    <HBox>
+        <Label text="quantity : "/>
+        <TextField fx:id="productQuantityField" promptText="quantity"/>
+        <Label text="    discount : "/>
+        <TextField fx:id="discountField" promptText="discount"/>
+    </HBox>
+
     <Button text="Add Product" onAction="#handleCreateInvoiceItem"/>
 
     <TableView fx:id="invoiceItemsTable" maxHeight="400" >
@@ -36,9 +46,20 @@
 
 
     <TextField fx:id="customerPhoneNumber" promptText="Customer Phone Number"/>
-    <TextField fx:id="customerFirstName" promptText="Customer First Name" visible="false"/>
-    <TextField fx:id="customerLastName" promptText="Customer Last Name" visible="false"/>
-    <TextField fx:id="customerEmail" promptText="Customer Email" visible="false"/>
+    <HBox>
+        <TextField fx:id="customerFirstName" promptText="Customer First Name" visible="false"/>
+        <TextField fx:id="customerLastName" promptText="Customer Last Name" visible="false"/>
+    </HBox>
+    <HBox>
+        <TextField fx:id="customerNI" promptText="National Id" visible="false"/>
+        <TextField fx:id="customerEmail" promptText="Customer Email" visible="false"/>
+    </HBox>
+    <HBox>
+        <TextField fx:id="customerAddress" promptText="Customer Address" visible="false"/>
+        <TextField fx:id="customerState" promptText="Customer State" visible="false"/>
+        <TextField fx:id="customerCity" promptText="Customer City" visible="false"/>
+    </HBox>
+
     <Button text="Register New Customer" onAction="#handleRegisterCustomer" visible="false"/>
 
     <Button fx:id="registerCustomerButton" text="Save" onAction="#handleCreateInvoice"/>

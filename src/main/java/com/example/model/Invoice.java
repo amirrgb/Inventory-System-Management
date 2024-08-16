@@ -23,7 +23,7 @@ public class Invoice {
     private Customer customer;
 
     @Column(name = "total_amount", nullable = false)
-    private int total_amount;
+    private double total_amount;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
@@ -55,11 +55,11 @@ public class Invoice {
         this.customer = customer;
     }
 
-    public int getTotal_amount() {
+    public double getTotal_amount() {
         return total_amount;
     }
 
-    public void setTotal_amount(int total_amount) {
+    public void setTotal_amount(double total_amount) {
         this.total_amount = total_amount;
     }
 

@@ -40,14 +40,14 @@ public class Product {
     private Set<Inventory> inventoryQuantities;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Feature> features;
+    private Set<Feature_value> featureValues;
 
-    public Set<Feature> getFeatures() {
-        return features;
+    public Set<Feature_value> getFeatureValues() {
+        return featureValues;
     }
 
-    public void setFeatures(Set<Feature> features) {
-        this.features = features;
+    public void setFeatureValues(Set<Feature_value> featureValues) {
+        this.featureValues = featureValues;
     }
 
     public BigInteger getProduct_id() {

@@ -14,6 +14,11 @@
             <TextArea fx:id="warningTextArea"  text=" " maxHeight="40"/>
         </HBox>
 
+        <HBox>
+            <TextField fx:id="searchCategoryField" />
+            <Button text="search" onAction="#searchForCategory"/>
+        </HBox>
+
         <TableView fx:id="categoryTable" maxHeight="80" onMouseClicked="#setCategoryField">
             <columns>
                 <TableColumn fx:id="categoryIdColumn" text="Category ID"/>
@@ -29,6 +34,11 @@
         </HBox>
     </VBox>
 
+    <HBox>
+        <TextField fx:id="searchProductField" />
+        <Button text="search" onAction="#searchForProduct"/>
+    </HBox>
+
     <TableView fx:id="productTable" maxHeight="250"  onMouseClicked="#setProductFields">
         <columns>
             <TableColumn fx:id="productIdColumn" text="Product ID"/>
@@ -40,21 +50,16 @@
 
 <!--    features part  -->
 
-    <TextField fx:id="featureNameField" promptText="Feature Name"/>
-    <TextField fx:id="featureTypeField" promptText="Feature Type"/>
+    <TextField fx:id="featureNameField" promptText="Feature Name" editable="false"/>
     <TextField fx:id="featureValueField" promptText="Feature Value"/>
 
     <HBox spacing="10" alignment="CENTER">
-        <Button text="Clear" onAction="#clearFeatureFields"/>
-        <Button text="Add Feature" onAction="#handleAddFeature"/>
         <Button text="Edit (select before click)" onAction="#handleEditFeature"/>
-        <Button text="Delete (select before click)" onAction="#handleDeleteFeature"/>
     </HBox>
 
     <TableView fx:id="featureTable" maxHeight="150" onMouseClicked="#setFeatureFields">
 
         <columns>
-            <TableColumn fx:id="featureIdColumn" text="Feature ID"/>
             <TableColumn fx:id="featureNameColumn" text="Feature Name"/>
             <TableColumn fx:id="featureTypeColumn" text="Feature Type"/>
             <TableColumn fx:id="featureValueColumn" text="Feature Value"/>

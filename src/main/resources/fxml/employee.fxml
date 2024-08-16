@@ -8,6 +8,7 @@
     <TextField fx:id="passwordTextField" promptText="Password"/>
     <TextField fx:id="firstNameTextField" promptText="first name"/>
     <TextField fx:id="lastNameTextField" promptText="last name"/>
+    <TextField fx:id="roleTextField" promptText="role (employee | manager)" text="employee"/>
     <Button  text="back" onAction="#handleBack"/>
     <Button text="register" onAction="#handleRegister"/>
 

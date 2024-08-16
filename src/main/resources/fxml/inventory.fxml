@@ -7,6 +7,10 @@
 
     <VBox spacing="10" alignment="CENTER">
         <Button text="Back" onAction="#handleBack"/>
+        <HBox>
+            <TextField fx:id="searchCategoryField" />
+            <Button text="search" onAction="#searchForCategory"/>
+        </HBox>
         <TableView fx:id="categoryTable" maxHeight="120" onMouseClicked="#categorySelection">
             <columns>
                 <TableColumn fx:id="categoryIdColumn" text="Category ID"/>
@@ -25,6 +29,10 @@
 <!--        <Button text="Set Product Quantity (=)" onAction="#handleSetProductQuantityIntoInventory"/>-->
     </HBox>
 
+    <HBox>
+        <TextField fx:id="searchProductField" />
+        <Button text="search" onAction="#searchForProduct"/>
+    </HBox>
     <TableView fx:id="productTable" maxHeight="250"  onMouseClicked="#productSelection">
         <columns>
             <TableColumn fx:id="productIdColumn" text="Product ID"/>

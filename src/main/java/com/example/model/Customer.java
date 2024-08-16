@@ -24,6 +24,18 @@ public class Customer {
     @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = true, unique = true)
     private String email;
 
+    @Column(name = "address", columnDefinition = "VARCHAR(100)", nullable = true)
+    private String address;
+
+    @Column(name = "city", columnDefinition = "VARCHAR(50)", nullable = true)
+    private String city;
+
+    @Column(name = "state", columnDefinition = "VARCHAR(50)", nullable = true)
+    private String state;
+
+    @Column(name = "national_id", columnDefinition = "VARCHAR(50)", nullable = true)
+    private String national_id;
+
     public BigInteger getCustomer_id() {
         return customer_id;
     }
@@ -62,5 +74,37 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getNational_id() {
+        return national_id;
+    }
+
+    public void setNational_id(String national_id) {
+        this.national_id = national_id;
     }
 }

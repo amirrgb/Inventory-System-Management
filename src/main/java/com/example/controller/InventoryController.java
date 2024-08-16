@@ -61,6 +61,12 @@ public class InventoryController {
     private TableColumn<Category, String> categoryProductsQuantity;
 
     @FXML
+    private TextField searchCategoryField;
+
+    @FXML
+    private TextField searchProductField;
+
+    @FXML
     public TextField productName;
 
     @FXML
@@ -89,6 +95,8 @@ public class InventoryController {
 
     private final ObservableList<Category> categories = FXCollections.observableArrayList();
     private final ObservableList<Product> products = FXCollections.observableArrayList();
+    @Autowired
+    private FeatureValueRepository featureValueRepository;
 
     @FXML
     public void initialize() {
@@ -149,12 +157,9 @@ public class InventoryController {
 
         productPriceColumn.setCellValueFactory(cellData -> {
             Product product = cellData.getValue();
-            long price = featureRepository.getPriceByProduct(product.getProduct_id());
-            if (price > 0) {
-                return new SimpleStringProperty(String.valueOf(price));
-            }else {
-                return new SimpleStringProperty("N/A");
-            }
+            Feature feature = featureRepository.findByNameAndCategory("price", product.getCategory().getCategory_id());
+            Feature_value featureValue = featureValueRepository.findByProductAndFeature(product.getProduct_id(), feature.getFeature_id());
+            return new SimpleStringProperty(featureValue.getValue());
         });
 
         productsTotalPriceColumn.setCellValueFactory(cellData -> {
@@ -290,4 +295,25 @@ public class InventoryController {
         productQuantity.clear();
     }
 
+    @FXML
+    public void searchForCategory(ActionEvent event) {
+        String categoryName = searchCategoryField.getText().trim();
+        if (categoryName.isEmpty()) {
+            loadCategories();
+        } else {
+            categories.setAll(categoryRepository.findByName(categoryName));
+            categoryTable.setItems(categories);
+        }
+    }
+
+    @FXML
+    public void searchForProduct(ActionEvent event) {
+        String productName = searchProductField.getText().trim();
+        if (productName.isEmpty()) {
+            loadProducts();
+        } else {
+            products.setAll(productRepository.findByName(productName));
+            productTable.setItems(products);
+        }
+    }
 }

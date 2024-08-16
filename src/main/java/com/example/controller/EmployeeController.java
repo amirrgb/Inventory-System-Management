@@ -37,13 +37,17 @@ public class EmployeeController {
     private TextField passwordTextField;
 
     @FXML
+    private TextField roleTextField;
+
+    @FXML
     private void handleRegister(ActionEvent event) {
         String username = usernameTextField.getText();
         String password = passwordTextField.getText();
         String firstName = firstNameTextField.getText();
         String lastName = lastNameTextField.getText();
+        String role = roleTextField.getText();
 
-        if (username.isEmpty() || password.isEmpty() || firstName.isEmpty() || lastName.isEmpty()){
+        if (username.isEmpty() || password.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || role.isEmpty()){
             AlertHandler.showAlert("Error", "All fields must be filled", "Please fill all fields");
             return;
         }
@@ -58,7 +62,7 @@ public class EmployeeController {
         user.setPassword(password);
         user.setFirst_name(firstName);
         user.setLast_name(lastName);
-        user.setRole("employee");
+        user.setRole(role);
         userRepository.saveUser(user);
         AlertHandler.showAlert("Success", "Registration successful", "You can now log in with your new credentials");
     }

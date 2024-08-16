@@ -36,59 +36,30 @@ public class FeatureRepository {
     }
 
 
-    @Transactional
-    public List<Feature> findAllByProduct(BigInteger productId) {
-        try{
-            return entityManager.createQuery("SELECT f FROM Feature f WHERE f.product.product_id = :productId", Feature.class)
-                    .setParameter("productId", productId)
-                    .getResultList();
-        }catch (Exception e){
-            return null;
-        }
-
-    }
 
     @Transactional
-    public long getPriceByProduct(BigInteger productId) {
-        String[] priceFeatureNames = new String[]{"price"};
-        Feature resultFeature = null;
-        for (String priceFeatureName : priceFeatureNames) {
-            resultFeature = findByNameAndProduct(priceFeatureName, productId);
-            if (resultFeature!=null) break;
-        }
+    public Feature findByNameAndCategory(String featureName, BigInteger categoryId) {
         try {
-            return Long.parseLong(resultFeature.getFeature_value());
-        }catch (Exception e){
-            return 0;
-        }
-    }
-
-    @Transactional
-    public long getDiscountByProduct(BigInteger productId) {
-        String[] discountFeatureNames = new String[]{"discount"};
-        Feature resultFeature = null;
-        for (String discountFeatureName : discountFeatureNames) {
-            resultFeature = findByNameAndProduct(discountFeatureName, productId);
-            if (resultFeature!=null) break;
-        }
-        try {
-            return Long.parseLong(resultFeature.getFeature_value());
-        }catch (Exception e){
-            return 0;
-        }
-    }
-
-    @Transactional
-    public Feature findByNameAndProduct(String featureName, BigInteger productId) {
-        try {
-            return entityManager.createQuery("SELECT f FROM Feature f WHERE f.feature = :featureName AND f.product.product_id = :productId", Feature.class)
+            return entityManager.createQuery("SELECT f FROM Feature f WHERE f.feature = :featureName AND f.category.category_id = :categoryId", Feature.class)
                     .setParameter("featureName", featureName)
-                    .setParameter("productId", productId)
+                    .setParameter("categoryId", categoryId)
                     .getSingleResult();
         }catch (Exception e){
             return null;
         }
     }
+
+    @Transactional
+    public List<Feature> findAllByCategory(BigInteger categoryId) {
+        try{
+            return entityManager.createQuery("SELECT f FROM Feature f WHERE f.category.category_id = :categoryId", Feature.class)
+                   .setParameter("categoryId", categoryId)
+                   .getResultList();
+        }catch (Exception e){
+            return null;
+        }
+    }
+
 
     @Transactional
     public void delete(Feature feature) {

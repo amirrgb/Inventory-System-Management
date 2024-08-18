@@ -15,6 +15,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -25,11 +27,7 @@ import org.springframework.stereotype.Controller;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.example.iransandbox.SpringBootJavaFXApplication.applicationContext;
 
@@ -59,6 +57,9 @@ public class ReportController {
 
     @FXML
     private TableColumn<Invoice, String> totalPrice;
+
+    @FXML
+    private LineChart<String, Number> salesChart;
 
     private final ObservableList<Invoice> invoices = FXCollections.observableArrayList();
 
@@ -99,60 +100,138 @@ public class ReportController {
 
     }
 
+
     @FXML
     private void monthlyReport(ActionEvent event) {
         List<Invoice> invoices = invoiceRepository.findAll();
-        LocalDate currentDate = LocalDate.now();
 
-        LocalDate startDate = currentDate.withDayOfMonth(1);  // Start of the current month
-        LocalDate endDate = currentDate.with(TemporalAdjusters.lastDayOfMonth());  // End of the current month
+        PersianCalendar persianCalendar = new PersianCalendar();
+        persianCalendar.setTime(new Date()); // Set to current date
+
+        // Set to the first day of the current month
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, 1);
+        PersianCalendar startDate = new PersianCalendar();  // Create a new instance
+        startDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
+
+        // Set to the last day of the current month
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, persianCalendar.getActualMaximum(PersianCalendar.DAY_OF_MONTH));
+        PersianCalendar endDate = new PersianCalendar();  // Create a new instance
+        endDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
 
         List<Invoice> filteredInvoices = filterInvoices(invoices, startDate, endDate);
 
         invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
+        generateSalesChart(filteredInvoices, "monthly");
         updateInvoices();
     }
+
 
     @FXML
     private void quarterlyReport(ActionEvent event) {
         List<Invoice> invoices = invoiceRepository.findAll();
-        LocalDate currentDate = LocalDate.now();
 
-        int currentQuarter = (currentDate.getMonthValue() - 1) / 3 + 1;
-        LocalDate startDate = currentDate.withMonth((currentQuarter - 1) * 3 + 1).withDayOfMonth(1);  // Start of the current quarter
-        LocalDate endDate = startDate.plusMonths(2).with(TemporalAdjusters.lastDayOfMonth());  // End of the current quarter
+        PersianCalendar persianCalendar = new PersianCalendar();
+        persianCalendar.setTime(new Date()); // Set to current date
+
+        int currentMonth = persianCalendar.get(PersianCalendar.MONTH);
+        int currentQuarter = (currentMonth / 3) * 3; // Determine the start month of the current quarter
+
+        // Set to the first day of the first month of the current quarter
+        persianCalendar.set(PersianCalendar.MONTH, currentQuarter);
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, 1);
+        PersianCalendar startDate = new PersianCalendar();  // Create a new instance
+        startDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
+
+        // Set to the last day of the last month of the current quarter
+        persianCalendar.set(PersianCalendar.MONTH, currentQuarter + 2);
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, persianCalendar.getActualMaximum(PersianCalendar.DAY_OF_MONTH));
+        PersianCalendar endDate = new PersianCalendar();  // Create a new instance
+        endDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
 
         List<Invoice> filteredInvoices = filterInvoices(invoices, startDate, endDate);
 
         invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
+        generateSalesChart(filteredInvoices, "quarterly");
         updateInvoices();
     }
 
     @FXML
     private void yearlyReport(ActionEvent event) {
         List<Invoice> invoices = invoiceRepository.findAll();
-        LocalDate currentDate = LocalDate.now();
 
-        LocalDate startDate = currentDate.withDayOfYear(1);  // Start of the current year
-        LocalDate endDate = currentDate.with(TemporalAdjusters.lastDayOfYear());  // End of the current year
+        PersianCalendar persianCalendar = new PersianCalendar();
+        persianCalendar.setTime(new Date()); // Set to current date
+
+        // Set to the first day of the year
+        persianCalendar.set(PersianCalendar.MONTH, PersianCalendar.FARVARDIN);
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, 1);
+        PersianCalendar startDate = new PersianCalendar();  // Create a new instance
+        startDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
+
+        // Set to the last day of the year
+        persianCalendar.set(PersianCalendar.MONTH, PersianCalendar.ESFAND);
+        persianCalendar.set(PersianCalendar.DAY_OF_MONTH, persianCalendar.getActualMaximum(PersianCalendar.DAY_OF_MONTH));
+        PersianCalendar endDate = new PersianCalendar();  // Create a new instance
+        endDate.set(persianCalendar.get(PersianCalendar.YEAR),
+                persianCalendar.get(PersianCalendar.MONTH),
+                persianCalendar.get(PersianCalendar.DAY_OF_MONTH));
 
         List<Invoice> filteredInvoices = filterInvoices(invoices, startDate, endDate);
 
         invoiceTable.setItems(FXCollections.observableArrayList(filteredInvoices));
+        generateSalesChart(filteredInvoices, "yearly");
         updateInvoices();
     }
 
-    private List<Invoice> filterInvoices(List<Invoice> invoices, LocalDate startDate, LocalDate endDate) {
+    private List<Invoice> filterInvoices(List<Invoice> invoices, PersianCalendar startDate, PersianCalendar endDate) {
         List<Invoice> filteredInvoices = new ArrayList<>();
         for (Invoice invoice : invoices) {
-            LocalDate invoiceDate = invoice.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            if ((invoiceDate.isEqual(startDate) || invoiceDate.isAfter(startDate)) &&
-                    (invoiceDate.isEqual(endDate) || invoiceDate.isBefore(endDate))) {
+            PersianCalendar invoiceDate = new PersianCalendar();
+            invoiceDate.setTime(invoice.getCreatedAt());
+
+            if ((invoiceDate.equals(startDate) || invoiceDate.after(startDate)) &&
+                    (invoiceDate.equals(endDate) || invoiceDate.before(endDate))) {
                 filteredInvoices.add(invoice);
             }
         }
+        filteredInvoices.sort(Comparator.comparing(Invoice::getCreatedAt));
+
         return filteredInvoices;
     }
+
+
+
+    public Map<String, Double> categorizeInvoicesBasedOnDate(List<Invoice> invoices) {
+        Map<String, Double> invoiceMap = new HashMap<>();
+        String invoiceDate;
+        for (Invoice invoice : invoices) {
+            Timestamp currentDate = invoice.getCreatedAt();
+            PersianCalendar persianCalendar = new PersianCalendar();
+            persianCalendar.setTime(currentDate);
+            PersianDateFormat persianDateFormat = new PersianDateFormat("yyyy/MM/dd");
+            invoiceDate = persianDateFormat.format(persianCalendar);
+
+            if (!invoiceMap.containsKey(invoiceDate)) {
+                invoiceMap.put(invoiceDate, invoice.getTotal_amount());
+            } else {
+                invoiceMap.put(invoiceDate, invoiceMap.get(invoiceDate) + invoice.getTotal_amount());
+            }
+        }
+
+        // Sort the map by keys (dates)
+        return new TreeMap<>(invoiceMap);
+    }
+
     @FXML
     private void handleBack(ActionEvent event) {
         try {
@@ -173,4 +252,16 @@ public class ReportController {
         }
     }
 
+    @FXML
+    public void generateSalesChart(List<Invoice> invoices, String name) {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(name);
+
+        Map<String, Double> invoiceMap = categorizeInvoicesBasedOnDate(invoices);
+        for (Map.Entry<String, Double> entry : invoiceMap.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+        salesChart.getData().clear();
+        salesChart.getData().add(series);
+    }
 }

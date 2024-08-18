@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -20,5 +23,15 @@
             <TableColumn fx:id="totalPrice" text="Total Price"/>
         </columns>
     </TableView>
+
+
+    <LineChart fx:id="salesChart" title="Sales Report">
+        <xAxis>
+            <CategoryAxis label="Date"/>
+        </xAxis>
+        <yAxis>
+            <NumberAxis label="Sales Amount"/>
+        </yAxis>
+    </LineChart>
 
 </VBox>

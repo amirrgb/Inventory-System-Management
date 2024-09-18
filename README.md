@@ -63,8 +63,8 @@ An advanced inventory management system designed to simplify and automate stock 
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/your-repository.git
-    cd your-repository
+    git clone https://github.com/your-username/Inventory-System-Management.git
+    cd Inventory-System-Management
     ```
 
 2. Update `application.properties` with your database credentials:

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.CreateInvoiceController" spacing="10" alignment="CENTER">
+    <Button text="Back" onAction="#handleBack"/>
+
+    <HBox>
+        <TextField fx:id="searchProductField" />
+        <Button text="search" onAction="#searchForProduct"/>
+    </HBox>
+    <TableView fx:id="productTable" maxHeight="250" onMouseClicked="#productSelection">
+        <columns>
+            <TableColumn fx:id="productIdColumn" text="Product ID"/>
+            <TableColumn fx:id="productNameColumn" text="Product Name"/>
+            <TableColumn fx:id="productDescriptionColumn" text="Product Description"/>
+            <TableColumn fx:id="productCategoryColumn" text="Category"/>
+            <TableColumn fx:id="productQuantityColumn" text="Quantity"/>
+            <TableColumn fx:id="productPriceColumn" text="price"/>
+            <TableColumn fx:id="productDiscountColumn" text="discount"/>
+            <TableColumn fx:id="productDiscountedPriceColumn" text="final price"/>
+
+        </columns>
+    </TableView>
+
+    <HBox>
+        <Label text="quantity : "/>
+        <TextField fx:id="productQuantityField" promptText="quantity"/>
+        <Label text="    discount : "/>
+        <TextField fx:id="discountField" promptText="discount"/>
+    </HBox>
+
+    <Button text="Add Product" onAction="#handleCreateInvoiceItem"/>
+
+    <TableView fx:id="invoiceItemsTable" maxHeight="400" >
+        <columns>
+            <TableColumn fx:id="productNameColumn1" text="Product Name"/>
+            <TableColumn fx:id="productPriceColumn1" text="Product Price"/>
+            <TableColumn fx:id="productQuantityColumn1" text="Quantity"/>
+            <TableColumn fx:id="productDiscountColumn1" text="Discount"/>
+            <TableColumn fx:id="productsTotalPriceColumn" text="Total Price"/>
+
+        </columns>
+    </TableView>
+
+
+    <TextField fx:id="customerPhoneNumber" promptText="Customer Phone Number"/>
+    <HBox>
+        <TextField fx:id="customerFirstName" promptText="Customer First Name" visible="false"/>
+        <TextField fx:id="customerLastName" promptText="Customer Last Name" visible="false"/>
+    </HBox>
+    <HBox>
+        <TextField fx:id="customerNI" promptText="National Id" visible="false"/>
+        <TextField fx:id="customerEmail" promptText="Customer Email" visible="false"/>
+    </HBox>
+    <HBox>
+        <TextField fx:id="customerAddress" promptText="Customer Address" visible="false"/>
+        <TextField fx:id="customerState" promptText="Customer State" visible="false"/>
+        <TextField fx:id="customerCity" promptText="Customer City" visible="false"/>
+    </HBox>
+
+    <Button text="Register New Customer" onAction="#handleRegisterCustomer" visible="false"/>
+
+    <Button fx:id="registerCustomerButton" text="Save" onAction="#handleCreateInvoice"/>
+</VBox>

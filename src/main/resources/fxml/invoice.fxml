@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.InvoiceController" spacing="10" alignment="CENTER">
+    <Button text="Back" onAction="#handleBack"/>
+
+    <HBox>
+        <Label text="invoice id : "/>
+        <TextField fx:id="searchInvoiceIdField" />
+        <Label text="    customer name : "/>
+        <TextField fx:id="searchCustomerNameField" />
+        <Label text="    date : "/>
+        <TextField fx:id="searchDateField" />
+        <Button text="search" onAction="#searchForInvoice"/>
+    </HBox>
+
+    <TableView fx:id="invoiceTable" maxHeight="400" onMouseClicked="#invoiceSelection">
+        <columns>
+            <TableColumn fx:id="invoiceIdColumn" text="Invoice ID"/>
+            <TableColumn fx:id="date" text="Invoice Date"/>
+            <TableColumn fx:id="customerName" text="Customer Name"/>
+            <TableColumn fx:id="customerPhone" text="Phone"/>
+            <TableColumn fx:id="customerAddress" text="Address"/>
+            <TableColumn fx:id="customerCity" text="City"/>
+            <TableColumn fx:id="customerState" text="State"/>
+            <TableColumn fx:id="customerNationalId" text="National Id"/>
+            <TableColumn fx:id="customerEmail" text="Email"/>
+            <TableColumn fx:id="employeeInfo" text="Employee Information"/>
+            <TableColumn fx:id="totalPrice" text="Total Price"/>
+        </columns>
+    </TableView>
+
+    <TableView fx:id="invoiceItemsTable" maxHeight="400" >
+        <columns>
+            <TableColumn fx:id="productNameColumn" text="Product Name"/>
+            <TableColumn fx:id="productPriceColumn" text="Product Price"/>
+            <TableColumn fx:id="productQuantityColumn" text="Quantity"/>
+            <TableColumn fx:id="productDiscountColumn" text="Discount"/>
+            <TableColumn fx:id="productsTotalPriceColumn" text="Total Price"/>
+
+        </columns>
+    </TableView>
+
+</VBox>

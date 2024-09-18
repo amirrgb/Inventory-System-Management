@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.ReportController" spacing="10" alignment="CENTER">
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Back" onAction="#handleBack"/>
+        <Button text="Show Monthly Report" onAction="#monthlyReport"/>
+        <Button text="Show Quarterly Report" onAction="#quarterlyReport"/>
+        <Button text="Show Yearly Report" onAction="#yearlyReport"/>
+    </HBox>
+
+    <TableView fx:id="invoiceTable" maxHeight="400">
+        <columns>
+            <TableColumn fx:id="invoiceIdColumn" text="Invoice ID"/>
+            <TableColumn fx:id="date" text="Invoice Date"/>
+            <TableColumn fx:id="customerInfo" text="Customer Information"/>
+            <TableColumn fx:id="employeeInfo" text="Employee Information"/>
+            <TableColumn fx:id="totalPrice" text="Total Price"/>
+        </columns>
+    </TableView>
+
+
+    <LineChart fx:id="salesChart" title="Sales Report">
+        <xAxis>
+            <CategoryAxis label="Date"/>
+        </xAxis>
+        <yAxis>
+            <NumberAxis label="Sales Amount"/>
+        </yAxis>
+    </LineChart>
+
+</VBox>

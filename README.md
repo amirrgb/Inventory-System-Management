@@ -63,7 +63,7 @@ An advanced inventory management system designed to simplify and automate stock 
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/Inventory-System-Management.git
+    git clone https://github.com/amirrgb/Inventory-System-Management.git
     cd Inventory-System-Management
     ```
 
